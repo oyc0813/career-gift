@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>職場週年・抓周禮</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>
+    /* 核心架構 */
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Segoe UI", sans-serif; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at center, #b43a3a 0%, #821c1c 100%); display: flex; justify-content: center; align-items: center; color: #2f3440; overflow: hidden; }
+    .container { width: 95%; max-width: 450px; height: 92vh; background: #fffdf9; border-radius: 24px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.4); border: 6px solid #f2e1c1; display: flex; flex-direction: column; overflow-y: auto; position: relative; }
+    .hidden { display: none !important; }
+    .center { text-align: center; }
+
+    /* 按鈕與輸入 */
+    .primary-btn { border: none; border-radius: 999px; padding: 16px; background: linear-gradient(135deg, #d44747, #a32a2a); color: #fff; font-size: 1.1rem; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(130,28,28,0.3); margin-top: 10px; }
+    .share-btn { background: #fff; color: #821c1c; border: 2px solid #821c1c; margin-top: 15px; }
+
+    input { width: 100%; padding: 15px; border: 2px solid #f2e1c1; border-radius: 12px; text-align: center; font-size: 1.1rem; margin-bottom: 20px; outline: none; background: #fff; }
+
+    /* 故事沉浸動畫 (極速版 0.5s) */
+    .story-line { opacity: 0; transform: translateY(10px); transition: all 0.5s ease; margin-bottom: 12px; color: #821c1c; line-height: 1.8; font-size: 1.05rem; }
+    .story-line.show { opacity: 1; transform: translateY(0); }
+    .breath-highlight { color: #d44747; font-weight: bold; font-size: 1.15rem; margin-top: 20px; }
+
+    /* 圖示尺寸 */
+    .ritual-icon { font-size: 8.5rem; cursor: pointer; transition: transform 0.2s; margin: 15px 0; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1)); display: block; text-align: center; }
+
+    /* 米篩呈現：呼吸物件 */
+    .ceremony-altar { background: #fdf5e6 url('https://www.transparenttextures.com/patterns/woven.png'); border-radius: 50%; width: 310px; height: 310px; margin: 20px auto; position: relative; border: 4px solid #d4af37; display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: floatTray 4s ease-in-out infinite; }
+    .items-circle-wrap { position: absolute; width: 100%; height: 100%; top: 0; left: 0; display: flex; align-items: center; justify-content: center; }
+    .item { position: absolute; width: 56px; height: 56px; background: #fff; border-radius: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1px solid #eee; z-index: 10; margin-left: -28px; margin-top: -28px; animation: itemPulse 3s ease-in-out infinite; transition: 0.3s; }
+    
+    .item.selected { 
+        background-color: #e0e0e0 !important; 
+        filter: grayscale(1) opacity(0.4) !important; 
+        pointer-events: none !important; 
+        animation: none !important;
+    }
+    .item-inner { display: flex; flex-direction: column; align-items: center; pointer-events: none; width: 100%; height: 100%; justify-content: center; }
+
+    /* 宇宙風格選取 */
+    .theme-grid { display: flex; flex-direction: column; gap: 12px; margin: 15px 0; }
+    .theme-btn { border: 2px solid #f2e1c1; border-radius: 18px; padding: 18px; background: #fff; cursor: pointer; display: flex; align-items: center; width: 100%; transition: 0.3s; }
+    .theme-btn.active { border-color: #d44747; background: #fff5f5; border-width: 3px; transform: scale(1.02); }
+    .theme-btn span { font-size: 2.2rem; margin-right: 18px; }
+    .theme-btn b { color: #821c1c; font-size: 1.15rem; }
+
+    /* 紅龜粿 */
+    .red-gui { background: #e65c5c; border-radius: 25px; padding: 20px 10px; text-align: center; color: white; cursor: pointer; box-shadow: 0 6px 0 #b33a3a; transition: 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .red-gui.active { background: #a32a2a; border: 2px solid #d4af37; transform: translateY(3px); box-shadow: 0 3px 0 #b33a3a; pointer-events: none; }
+
+    /* 彈窗設計 */
+    .overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
+    .popup { background: #fff; border-radius: 24px; padding: 35px 25px; width: 90%; max-width: 380px; text-align: center; border-top: 10px solid #d44747; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
+    .quote-card { background: #fff8f8; border: 2px solid #d44747; padding: 18px; border-radius: 16px; text-align: center; margin: 15px 0; }
+    .seal-text { color: #d44747; font-weight: bold; margin-top: 10px; font-size: 1.1rem; letter-spacing: 2px; border-top: 1px dashed #d44747; padding-top: 10px; }
+
+    /* 證書與動畫 */
+    .cert-section { opacity: 0; transform: translateY(10px); transition: 0.5s ease; }
+    .cert-section.show { opacity: 1; transform: translateY(0); }
+    .certificate { border: 4px solid #d4af37; padding: 22px; background: #fff; position: relative; text-align: left; width: 100%; margin-bottom: 20px; }
+    .blessing-box { background: #fffaf5; padding: 20px; border-radius: 12px; margin-top: 15px; font-size: 0.95rem; line-height: 1.8; border: 2px solid #821c1c; }
+
+    @keyframes floatTray { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+    @keyframes itemPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <div id="stepName" class="step">
+        <h1 class="center" style="color:#821c1c; font-size:1.8rem; margin-bottom:5px;">職場週年・抓周禮</h1>
+        <p class="center" style="font-style:italic; color:#821c1c; margin-bottom:30px;">「一歲一禮，一寸歡喜」</p>
+        <p class="center" style="font-size:0.95rem; color:#666; margin-bottom:15px;">儀式開始前，請留下你的職場名號</p>
+        <input type="text" id="userInput" placeholder="例如：數據勇者 Alice">
+        <button class="primary-btn" onclick="toStory()">備禮・開始儀式</button>
+    </div>
+
+    <div id="stepStory" class="step hidden center">
+        <div id="storyContent">
+            <p class="story-line">嬰兒抓周，慶祝的是平安長大。</p>
+            <p class="story-line">職場抓周，致敬的是——仍然願意前進的你。</p>
+            <p class="story-line">每一位職人，在第一年、第五年，甚至第十年，都值得一次重新校準方向的時刻。</p>
+            <p class="story-line">今天，我們暫時放下日常的角色與任務，掃去職場的塵埃，整理內在的衣冠。</p>
+            <p class="story-line">這不是占卜，而是一場為自己而做的儀式。</p>
+            <p class="story-line">接下來的選擇，將映照你此刻的狀態，也指引你走向下一段旅程。</p>
+            <p class="story-line breath-highlight">現在，請閉上眼呼吸三次，準備開啟你的職場宇宙。</p>
+        </div>
+        <button id="storyEndBtn" class="primary-btn hidden" onclick="toTheme()">我準備好了</button>
+    </div>
+
+    <div id="stepTheme" class="step hidden">
+        <p class="center" style="color:#821c1c; font-weight:bold; font-size:1.1rem;">選擇探索宇宙風格：</p>
+        <div id="themeButtons" class="theme-grid"></div>
+        <button id="themeConfirmBtn" class="primary-btn" disabled onclick="toRobe()">進入準備流程</button>
+    </div>
+
+    <div id="stepRobe" class="step hidden center">
+        <p style="color:#821c1c; font-weight:bold; font-size:1.2rem; margin-bottom:15px;">職場抓周・授袍儀式</p>
+        <div style="font-size:0.95rem; color:#666; line-height:1.7; margin-bottom:15px; padding:0 10px;">
+            嬰兒抓周前會先穿上虎衣，並非為了好看，而是象徵一份守護——為孩子披上一層面對世界的勇氣。<br><br>
+            今日，我們也為職人準備了專屬戰袍。<br>
+            <span style="color:#821c1c; font-weight:bold;">這不是裝扮，而是一場身分的轉換。</span>
+        </div>
+        <div id="robeIcon" class="ritual-icon center" style="margin: 0 auto;" onclick="onRobeClick()"></div>
+        <p id="robeLabel" style="font-weight:bold; color:#821c1c; font-size:1.15rem;"></p>
+        <p style="color:#999; font-size:0.9rem;">(點擊披掛戰袍，承接宇宙力量)</p>
+    </div>
+
+    <div id="stepWarmupIntro" class="step hidden center">
+        <p style="color:#821c1c; font-weight:bold; font-size:1.2rem; margin-bottom:15px;">職場抓周・吃福摸福儀式</p>
+        <div style="color:#666; font-size:0.95rem; line-height:1.8; margin-bottom:30px; padding:0 20px;">
+            傳統抓周中，孩子會吃福物、摸吉祥，把祝福一樣一樣，放進未來人生裡。<br><br>
+            今天，我們也為職人準備了屬於職場的福物。<br>
+            每一次品嚐、觸碰，都是一種<span style="color:#d44747; font-weight:bold;">能力的召喚</span>。
+        </div>
+        <button class="primary-btn" onclick="startWarmup()">開始領受福物</button>
+    </div>
+
+    <div id="stepWarmup" class="step hidden center">
+        <p id="wTitle" style="color:#821c1c; font-size:1.6rem; font-weight:bold; margin-bottom:5px;"></p>
+        <p id="wAction" style="font-size:1.1rem; color:#333;"></p>
+        <div id="wIcon" class="ritual-icon center" style="margin: 0 auto;" onclick="onWarmupClick()"></div>
+    </div>
+
+    <div id="stepGame" class="step hidden">
+        <h3 class="center" style="color:#821c1c; font-size:1.4rem; margin-bottom:5px;">週歲正典・舉行抓周儀式</h3>
+        <p class="center" style="font-size:0.95rem; color:#666; margin-bottom:10px;">請從米篩中抓取 3 件職場寶物</p>
+        <div class="ceremony-altar"><div class="items-circle-wrap" id="itemGrid"></div></div>
+    </div>
+
+    <div id="stepFeet" class="step hidden">
+        <p class="center" style="font-weight:bold; color:#821c1c; font-size:1.4rem; margin-bottom:10px;">職人足跡・步步生輝</p>
+        <p class="center" style="font-size:1.05rem; color:#666; margin-bottom:15px; padding:0 10px;">請點選兩個紅龜粿，代表來年步步踏實、圓滿新局。</p>
+        <div id="guiContainer" style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:20px; padding:0 10px;"></div>
+    </div>
+
+    <div id="stepCert" class="step hidden">
+        <div id="certContainer"></div>
+        <p class="center" style="font-size:0.85rem; color:#d44747; margin-bottom:5px;">✨ 儀式圓滿。長按螢幕截圖，分享你的職人命盤。</p>
+        <button class="primary-btn share-btn" onclick="copyLink()">🔗 分享給職人夥伴</button>
+        <button class="primary-btn" onclick="manualReset()">重新探索宇宙</button>
+    </div>
+</div>
+
+<div id="overlay" class="overlay hidden">
+    <div class="popup">
+        <div id="popupBody"></div>
+        <button id="popCloseBtn" class="primary-btn" style="width:auto; padding:12px 50px; margin-top:20px;" onclick="closePopup()">繼續儀式</button>
+    </div>
+</div>
+
+<script>
+// --- 資料庫 (完整) ---
+const ITEM_DB = {
+    "青蔥": { emoji: "🧅", trad: "聰明睿覺", quotes: ["釐清供應鏈節點脈絡，建立精密運籌座標，展現預判阻塞之智慧。","覺知導航先機，於混亂中釐清核心邏輯。","細膩感知環境微光，化解僵局。","精準鎖定局勢破綻，解鎖傳奇。","看穿職場畫餅虛像，精確鎖定獲勝路徑。"] },
+    "芹菜": { emoji: "🥬", trad: "勤勞踏實", quotes: ["精密穩定吞吐貨流，成為系統可靠地基。","腳踏實地磨練底氣，讓每步累積都成為實力。","維持優雅節律，滋養內在韌性。","確保持續戰鬥輸出力，化身團隊定心丸。","精準累積隨時閃人的資本，拒絕瞎忙。"] },
+    "書本": { emoji: "📘", trad: "博學廣記", quotes: ["內化物流SOP為核心競爭力，建立專業護城河。","廣記行事脈絡，內化知識為人格深度。","透過學習為生命開拓新局。","精通規則轉化為武力，解鎖贏家權力。","深知知識即自由，專業積累是職涯保險。"] },
+    "鋼筆": { emoji: "✒️", trad: "妙筆生花", quotes: ["定義數據對接標竿，在繁複數據中發揮影響力。","下筆有神言之有據，在領域內建立影響。","捕捉混亂中秩序美，透過文字傳遞邏輯。","具備締結契約領袖特質，使專業見解被世界聽見。","精通優雅溝通技術，用獨特想法化解人事。"] },
+    "尺": { emoji: "📏", trad: "行事正直", quotes: ["守護交付品質防線，在規範中展現職人風骨。","於彈性與原則間掌握經緯，贏得長久信賴。","掌握拿捏界線藝術，在紛擾中守護初心。","精準衡量職場分寸，讓原則成為最堅實盔甲。","心中有把清醒之尺，活得心中有數。"] },
+    "線團": { emoji: "🧵", trad: "連綿長久", quotes: ["高效對接跨部資源，達成資訊與貨流完美鏈結。","廣結善緣得群力支持，織就左右逢源貴人網。","牽起溫暖輕盈連結，串接繁雜需求為圓滿。","跨界突圍整合天賦，倍數增益團隊戰。","極強整合能力，確保雜事不糾纏。"] },
+    "鏡子": { emoji: "🪞", trad: "明辨是非", quotes: ["實時反饋運作效能，追求極致迭代。","正衣冠察內心，感謝經歷對初心的映照。","給予這一年最高肯定，看見努力的自我。","洞穿虛偽真理之眼，在自我更新中變強。","看清現實後依然認可自身價值。"] },
+    "梳子": { emoji: "🪮", trad: "理路通順", quotes: ["梳理混亂物流流程，讓阻塞排程恢復流暢。","將複雜局面轉化為康莊大道，讓職涯順心。","梳理焦慮情緒，在忙碌中保有舒心節律。","解析攻略簡化本領，讓問題迎刃而解。","維持髮型不亂體面底氣，掌控全場於指尖。"] },
+    "鈴鐺": { emoji: "🔔", trad: "一鳴驚人", quotes: ["建立異常預警機制，為團隊安全指標。","建立無可挑戰領袖地位，名傳千里。","成為安穩人心之專業叮嚀，用聲望守護彼此。","關鍵時刻化身防禦塔，守護團隊成果。","守護下班鐘響權利，擁有生活掌控權。"] },
+    "鞋子": { emoji: "👟", trad: "步履千里", quotes: ["踏實走完最後一哩路，用實踐力贏得長久信。","步履輕盈志在遠方，腳踏實地走出前程。","具備看清現實依然前行的從容。","勇於跨出舒適圈，將不可能轉化為傳奇。","繫好鞋帶踏實前行，維持前進強韌性。"] },
+    "湯匙": { emoji: "🥄", trad: "福祿滋養", quotes: ["優化合作介面，成為關鍵潤滑劑，減少磨損。","廣納福氣滋養喜悅，獲取職涯能量回饋。","在照看他人之時亦不忘滋養自己。","回補戰鬥力藥水，確保大家擁有持續力。","餵飽肚子，更有力氣去餵飽熱血夢想。"] },
+    "布偶": { emoji: "🧸", trad: "赤子初心", quotes: ["冰冷數據中保有溫度，讓專業服務具質感。","保有赤子初心，在激烈競爭中活出質感。","擁有一份不被同化之柔軟，守護初心。","守護不服輸鬥志，解鎖溫柔強大。","累的時候依然能看見世界可愛。"] },
+    "飛機": { emoji: "✈️", trad: "志在雲端", quotes: ["擁有全球運籌視野，使職涯賽道無限寬廣。","展現無可限量未來格局，在高處看見機會。","從雲端俯瞰世界觀，用高度解決瑣事。","讓每一次選擇皆具戰略鬥志，職涯躍遷。","眼界宏大格局清晰，目標永遠在更高雲端。"] }
+};
+
+const THEMES = [
+    { name: "物流職人版", icon: "📦", wishes: "精準抵達，源於每一秒的堅持。", robe: "優雅職人西裝", robeIcon: "👔", pos: "秩序 × 精準 × 系統核心", bless: "披上此裝，座標即定。願你以邏輯為盾，精準為刃，將複雜化為秩序。", strategy: [{l:"左踏・平安", s:"基石籤", j:"地若穩，路自通", d:"你此刻最該做的，不是衝最快，而是把地基挖深。當你真正讀懂系統脈絡，別人動盪，你自安穩。"},{l:"右踏・富貴", s:"校準籤", j:"心若準，量自開", d:"福不在多忙，而在剛好。當你看清自己承載的量，刪去雜訊，產出自然上升。"},{l:"步步踏實", s:"鏈結籤", j:"獨行易慢，結網則快", d:"主動串連關鍵角色，會打開原本看不見的捷徑。"},{l:"前程似錦", s:"續航籤", j:"專業即長期戰力", d:"會跑的人很多，能跑久的人不多。懂得切換節奏者，才能走得更遠。"}] },
+    { name: "傳統大吉版", icon: "🧧", wishes: "凡過往皆為序章，願你未來綻放光芒。", robe: "如意職人長袍", robeIcon: "👘", pos: "福運 × 穩定 × 天時地利", bless: "袍袖一展，福氣隨行。願此長袍為你擋風避雨，讓努力自有回響。", strategy: [{l:"左踏・平安", s:"根氣籤", j:"穩字當頭，福自隨行", d:"你正在累積看不見的厚度。這份穩，未來正是你最難被取代的底氣。"},{l:"右踏・富貴", s:"清明籤", j:"莫隨人潮起伏", d:"清楚自己是誰、能做什麼，比短暫掌聲更值錢。"},{l:"步步踏實", s:"人和籤", j:"福氣藏在人和裡", d:"當你願意伸手，助力也會回頭找上你。"},{l:"前程似錦", s:"久行籤", j:"步步為營，久行自遠", d:"不必追最快的那條路。找對自己的步速，時間自然替你累積成果。"}] },
+    { name: "溫柔治癒版", icon: "🌿", wishes: "願你忙碌時依然有詩，疲憊時有人擁抱。", robe: "暖心守護斗篷", robeIcon: "🧥", pos: "內在安定 × 修復 × 節奏", bless: "柔軟在身，本心不失。願這份溫暖守護你，在高壓與忙碌間，聽見自己的聲音。", strategy: [{l:"左踏・平安", s:"紮根籤", j:"柔者不弱，慢者不退", d:"現在做的事也許沒人看見。但根扎得深，未來的風雨都只是背景。"},{l:"右踏・富貴", s:"留白籤", j:"停一下，並非後退", d:"給自己呼吸的空間，答案才會浮現。"},{l:"步步踏實", s:"同行籤", j:"頻率相近者同行", d:"這條路不適合獨走。當你找到伴，事情會變得不再重。"},{l:"前程似錦", s:"節奏籤", j:"用自己的節拍前行", d:"不必活成別人的期待。你的人生，有權利用自己的節拍前行。"}] },
+    { name: "熱血冒險版", icon: "⚔️", wishes: "你的征途是星辰大海，下一站，傳奇開始。", robe: "傳奇冒險領巾", robeIcon: "🧣", pos: "突破 × 行動 × 英雄旅程", bless: "領巾繫上，征途啟程。願你胸懷遠景，腳踏未知，把挑戰當作召喚。", strategy: [{l:"左踏・平安", s:"蓄勢籤", j:"忍一時蓄力，換一擊破局", d:"你正在鍛鍊核心能力。忍一時蓄力，這會成為翻盤關鍵。"},{l:"右踏・富貴", s:"準星籤", j:"別再亂砍，精準鎖定", d:"把力氣集中在最有勝率的方向，成果會來得快又狠。"},{l:"步步踏實", s:"組隊籤", j:"聯手對的人，難度下降", d:"強者懂得選隊友。聯手對的人，副本難度自然下降。"},{l:"前程似錦", s:"戰略籤", j:"懂得進退，才是高手", d:"會衝也會停的人，最後才能寫下傳奇紀錄。"}] },
+    { name: "幽默金句版", icon: "☕", wishes: "優雅打工，慶祝完這秒，準時下班。", robe: "萬能工裝背心", robeIcon: "🦺", pos: "人間清醒 × 生存智慧 × 輕盈前行", bless: "口袋在手，人生不慌。願你裝得下專業也裝得下幽默。準時下班的路上，風總是站在你這邊。", strategy: [{l:"左踏・平安", s:"鐵飯碗籤", j:"實力夠硬，世界就客氣", d:"當你的專業夠硬，世界自然對你客氣。這不是保守，是實力。"},{l:"右踏・富貴", s:"拒工籤", j:"忙碌不等於有用", d:"看清哪些事不會累積，放下它，是成熟的開始。"},{l:"步步踏實", s:"互救籤", j:"成年人的自救術", d:"壓力有人分，人生比較撐得久。建立支援網是成年人的自救術。"},{l:"前程似錦", s:"高段位籤", j:"躺平是為了續命", d:"偶爾躺平不是放棄，是續命。走得舒服，才能走到最後。"}] }
+];
+
+const WARMUP_POOL = [
+    { id: "apple", icon: "🍎", action: "咬一口紅蘋果", title: "歲歲平安", symbol: "清明 × 安穩 × 看清局勢", meanings: ["釐清關鍵排程，預判瓶頸阻塞。","靈台清明，步伐不亂。","記得為自己留一口呼吸空間。","看穿敵陣破綻，一擊突破。","一口咬下，畫餅無所遁形。"] },
+    { id: "chicken", icon: "🍗", action: "吃一口金雞腿", title: "福祿雙全", symbol: "能量 × 底氣 × 成長續航", meanings: ["補足系統動能，穩定輸出。","底氣紮實，福祿隨行。","溫柔餵養正在成長的自己。","蓄積力量，為下一次爆發準備。","雞腿一定要吃完。"] },
+    { id: "gong", icon: "🔔", action: "敲響金銅鑼", title: "一鳴驚人", symbol: "聲望 × 共振 × 被看見", meanings: ["專業回響，威望傳遍全鏈。","事業敲響好運，名聲自傳。","找到與內心一致的頻率。","傳奇登場，全場焦點。","宣告優雅下班。"] }
+];
+
+let userName = "", themeIdx = -1, pickedItems = [], pickedFeets = [], selectedWarmups = [], wIdx = 0;
+
+function toStory() {
+    userName = document.getElementById('userInput').value.trim();
+    if (!userName) return alert("請留下名號");
+    document.querySelectorAll('.step').forEach(s => s.classList.add('hidden'));
+    document.getElementById('stepStory').classList.remove('hidden');
+    const lines = document.querySelectorAll('.story-line');
+    lines.forEach((line, index) => {
+        setTimeout(() => {
+            line.classList.add('show');
+            if(index === lines.length - 1) document.getElementById('storyEndBtn').classList.remove('hidden');
+        }, index * 500); 
+    });
+}
+
+function toTheme() {
+    document.querySelectorAll('.step').forEach(s => s.classList.add('hidden'));
+    document.getElementById('stepTheme').classList.remove('hidden');
+    const container = document.getElementById('themeButtons');
+    container.innerHTML = "";
+    THEMES.forEach((t, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'theme-btn';
+        btn.innerHTML = `<span>${t.icon}</span><b>${t.name}</b>`;
+        btn.onclick = () => {
+            themeIdx = i;
+            document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('themeConfirmBtn').disabled = false;
+        };
+        container.appendChild(btn);
+    });
+}
+
+function toRobe() {
+    document.querySelectorAll('.step').forEach(s => s.classList.add('hidden'));
+    document.getElementById('stepRobe').classList.remove('hidden');
+    document.getElementById('robeIcon').innerText = THEMES[themeIdx].robeIcon;
+    document.getElementById('robeLabel').innerText = `披掛：${THEMES[themeIdx].robe}`;
+}
+
+function onRobeClick() {
+    const t = THEMES[themeIdx];
+    showPopup(`<div style="font-size:0.9rem; color:#999; margin-bottom:5px;">${t.name}</div><h3 style="color:#821c1c; margin-top:0;">${t.pos}</h3><div class="quote-card"><b style="color:#d44747;">⚔️ 披掛祝福</b><p style="text-align:left; font-size:1rem; margin-top:10px; line-height:1.7;">${t.bless}</p></div>`);
+    document.getElementById('popCloseBtn').innerText = "承接祝福，開啟祈福";
+    document.getElementById('popCloseBtn').onclick = () => { closePopup(); toWarmupIntro(); };
+}
+
+function toWarmupIntro() {
+    document.querySelectorAll('.step').forEach(s => s.classList.add('hidden'));
+    document.getElementById('stepWarmupIntro').classList.remove('hidden');
+}
+
+function startWarmup() {
+    wIdx = 0;
+    selectedWarmups = [...WARMUP_POOL];
+    document.querySelectorAll('.step').forEach(s => s.classList.add('hidden'));
+    document.getElementById('stepWarmup').classList.remove('hidden');
+    renderWarmup();
+}
+
+function renderWarmup() {
+    const stage = selectedWarmups[wIdx];
+    document.getElementById('wTitle').innerText = stage.title;
+    document.getElementById('wAction').innerText = `請點擊${stage.action}`;
+    document.getElementById('wIcon').innerText = stage.icon;
+}
+
+function onWarmupClick() {
+    const stage = selectedWarmups[wIdx];
+    showPopup(`<div style="font-size:0.9rem; color:#999; margin-bottom:5px;">${stage.icon} ${stage.title}</div><h3 style="color:#821c1c; margin-top:0;">象徵：${stage.symbol}</h3><div class="quote-card"><b style="color:#d44747;">✨ 職場福物・祈福箴言</b><p style="text-align:left; font-size:1rem; margin-top:10px; line-height:1.7;">${stage.meanings[themeIdx]}</p></div>`);
+    document.getElementById('popCloseBtn').innerText = (wIdx >= 2) ? "能力就位，進入抓周" : "繼續領受福物";
+    document.getElementById('popCloseBtn').onclick = () => { closePopup(); wIdx++; if (wIdx >= 3) toGame(); else renderWarmup(); };
+}
+
+function toGame() {
+    document.querySelectorAll('.step').forEach(s => s.classList.add('hidden'));
+    document.getElementById('stepGame').classList.remove('hidden');
+    const grid = document.getElementById('itemGrid');
+    grid.innerHTML = "";
+    Object.keys(ITEM_DB).forEach((name, i) => {
+        const angle = (i / 13) * 2 * Math.PI;
+        const x = Math.cos(angle) * 125, y = Math.sin(angle) * 125;
+        const div = document.createElement('div');
+        div.className = 'item';
+        div.style.left = `calc(50% + ${x}px)`;
+        div.style.top = `calc(50% + ${y}px)`;
+        const data = ITEM_DB[name];
+        div.innerHTML = `<div class="item-inner"><span>${data.emoji}</span><div style="font-size:0.6rem; font-weight:bold;">${name}</div></div>`;
+        div.onclick = () => {
+            if (pickedItems.length >= 3 || div.classList.contains('selected')) return;
+            pickedItems.push({ name, quote: data.quotes[themeIdx], trad: data.trad });
+            div.classList.add('selected'); 
+            
+            let popupContent = `<div style="font-size:0.85rem; color:#999; margin-bottom:10px;">傳統寓意：${data.trad}</div><div class="quote-card"><b>✨ 成長箴言</b><p>${data.quotes[themeIdx]}</p></div>`;
+            
+            if (pickedItems.length === 3) {
+                popupContent += `<div class="seal-text">三件既定，命盤成形。</div>`;
+                document.getElementById('popCloseBtn').innerText = "抓周圓滿，下一步";
+                document.getElementById('popCloseBtn').onclick = () => { closePopup(); toFeet(); };
+            } else {
+                document.getElementById('popCloseBtn').innerText = "繼續探索寶物";
+                document.getElementById('popCloseBtn').onclick = closePopup;
+            }
+            showPopup(popupContent);
+        };
+        grid.appendChild(div);
+    });
+}
+
+function toFeet() {
+    const container = document.getElementById('guiContainer');
+    container.innerHTML = "";
+    THEMES[themeIdx].strategy.forEach((s) => {
+        const div = document.createElement('div');
+        div.className = 'red-gui';
+        div.innerHTML = `<span>${s.l}</span><b>${s.s}</b>`;
+        div.onclick = () => {
+            if (pickedFeets.length < 2 && !div.classList.contains('active')) {
+                pickedFeets.push(s);
+                div.classList.add('active');
+                showPopup(`<h3 style="font-size:1.05rem; margin-bottom:12px; color:#821c1c;">👣 ${s.s}｜${s.j}</h3><p style="text-align:left; line-height:1.7; font-size:0.95rem;">${s.d}</p>`);
+                document.getElementById('popCloseBtn').innerText = "繼續儀式";
+                if (pickedFeets.length === 2) document.getElementById('popCloseBtn').onclick = () => { closePopup(); toCert(); };
+            }
+        };
+        container.appendChild(div);
+    });
+    document.querySelectorAll('.step').forEach(s => s.classList.add('hidden'));
+    document.getElementById('stepFeet').classList.remove('hidden');
+}
+
+function toCert() {
+    const i = pickedItems, s = pickedFeets, t = THEMES[themeIdx];
+    const today = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('certContainer').innerHTML = `
+        <div class="certificate">
+            <div class="cert-section" id="cs1">
+                <h2 class="center" style="color:#821c1c; margin:0; font-size:1.5rem;">抓周禮成證書</h2>
+                <p class="center" style="font-size:0.7rem; color:#999; margin-bottom:15px;">CERTIFICATE OF CAREER ANNIVERSARY</p>
+                <p style="font-size:1rem;"><b>職人：${userName}</b></p>
+            </div>
+            <div class="blessing-box">
+                <div class="cert-section" id="cs2">
+                    <p>✨ <b>週歲成就：</b><br>
+                    擁有「${i[0].name}」之姿，${i[0].quote}<br>
+                    具備「${i[1].name}」之底，${i[1].quote}<br>
+                    終得「${i[2].name}」之神，${i[2].quote}</p>
+                </div>
+                <div class="cert-section" id="cs3">
+                    <p>🚀 <b>未來步局：</b><br>
+                    深耕<b>「${s[0].s}」</b>（${s[0].d}）<br>
+                    並行<b>「${s[1].s}」</b>（${s[1].d}）。</p>
+                </div>
+                <div class="cert-section center" id="cs4" style="font-weight:bold; color:#821c1c; margin-top:30px;">${t.wishes}</div>
+            </div>
+            <p class="cert-section" id="cs5" style="text-align:right; font-size:0.8rem; color:#999; margin-top:20px;">儀式日期：${today}</p>
+        </div>
+    `;
+    document.querySelectorAll('.step').forEach(s => s.classList.add('hidden'));
+    document.getElementById('stepCert').classList.remove('hidden');
+    const sections = ["cs1", "cs2", "cs3", "cs4", "cs5"];
+    sections.forEach((id, idx) => { setTimeout(() => document.getElementById(id).classList.add('show'), idx * 400); });
+}
+
+function copyLink() {
+    navigator.clipboard.writeText(window.location.href).then(() => { alert("連結已複製，快去分享給職人夥伴吧！"); });
+}
+
+function manualReset() { location.reload(); }
+function showPopup(html) { document.getElementById('popupBody').innerHTML = html; document.getElementById('overlay').classList.remove('hidden'); }
+function closePopup() { document.getElementById('overlay').classList.add('hidden'); }
+</script>
+</body>
+</html>
