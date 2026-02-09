@@ -2,7 +2,6 @@
 # 職場週年・抓周禮  
 **Office Zhuazhou – 把社畜人生包裝成儀式**
 
-![demo-screenshot](https://via.placeholder.com/800x400?text=職場抓周+Demo+截圖)  <!-- 你可以之後放真的 demo 圖 -->
 
 小時候抓周：父母期待你抓書、抓筆、抓算盤  
 長大後抓周：你抓到鍵盤、抓到咖啡杯、抓到主管的 K 條、抓到離職信……
@@ -18,7 +17,7 @@
 
 適合場景：迎新、年終尾牙、部門破冰、離職派對、主管被整、自己一個人自癒……
 
-**現在就試試 →** [https://oyc0813.github.io/career-gift/](https://oyc0813.github.io/career-gift/) （記得把 repo 設成 GitHub Pages）
+**現在就試試 →** [https://oyc0813.github.io/career-gift/](https://oyc0813.github.io/career-gift/) 
 
 ## 快速開始
 
